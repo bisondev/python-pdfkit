@@ -154,36 +154,41 @@ class PDFKit(object):
     def to_pdf(self, path=None):
         args = self.command(path)
 
-        result = subprocess.Popen(
-            args,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            env=self.environ
-        )
+        with open('tmp.html', 'wb+') as tmp_f_in, open('tmp_out.pdf', 'wb+') as tmp_f_out:
+            tmp_f_in.write(self.source.to_s())
+
+            result = subprocess.Popen(
+                args,
+                stdin=tmp_f_in,
+                stdout=tmp_f_out,
+                stderr=subprocess.PIPE,
+                env=self.environ
+            )
+
+            return tmp_f_out.read()
 
         # If the source is a string then we will pipe it into wkhtmltopdf.
         # If we want to add custom CSS to file then we read input file to
         # string and prepend css to it and then pass it to stdin.
         # This is a workaround for a bug in wkhtmltopdf (look closely in README)
-        if self.source.isString() or (self.source.isFile() and self.css):
-            print("running forked version of pdfkit. Not encoding input")
-            input = self.source.to_s()
-        elif self.source.isFileObj():
-            input = self.source.source.read().encode('utf-8')
-        else:
-            input = None
+        # if self.source.isString() or (self.source.isFile() and self.css):
+        #     print("running forked version of pdfkit. Not encoding input")
+        #     input = self.source.to_s()
+        # elif self.source.isFileObj():
+        #     input = self.source.source.read().encode('utf-8')
+        # else:
+        #     input = None
 
-        stdout, stderr = result.communicate(input=input)
-        stderr = stderr or stdout
-        stderr = stderr.decode('utf-8', errors='replace')
-        exit_code = result.returncode
-        self.handle_error(exit_code, stderr)
+        # stdout, stderr = result.communicate(input=input)
+        # stderr = stderr or stdout
+        # stderr = stderr.decode('utf-8', errors='replace')
+        # exit_code = result.returncode
+        # self.handle_error(exit_code, stderr)
 
         # Since wkhtmltopdf sends its output to stderr we will capture it
         # and properly send to stdout
-        if '--quiet' not in args:
-            sys.stdout.write(stderr)
+        # if '--quiet' not in args:
+            # sys.stdout.write(stderr)
 
         if not path:
             return stdout
