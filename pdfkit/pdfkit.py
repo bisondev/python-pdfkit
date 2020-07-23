@@ -167,7 +167,7 @@ class PDFKit(object):
         # string and prepend css to it and then pass it to stdin.
         # This is a workaround for a bug in wkhtmltopdf (look closely in README)
         if self.source.isString() or (self.source.isFile() and self.css):
-            input = self.source.to_s().encode('utf-8')
+            input = self.source.to_s()
         elif self.source.isFileObj():
             input = self.source.source.read().encode('utf-8')
         else:
