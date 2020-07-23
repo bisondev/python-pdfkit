@@ -154,7 +154,7 @@ class PDFKit(object):
     def to_pdf(self, path=None):
         args = self.command(path)
 
-        with open('tmp.html', 'wb+') as tmp_f_in, open('tmp_out.pdf', 'wb+') as tmp_f_out:
+        with open('tmp.html', 'w+') as tmp_f_in, open('tmp_out.pdf', 'w+') as tmp_f_out:
             tmp_f_in.write(self.source.to_s())
 
             result = subprocess.Popen(
